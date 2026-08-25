@@ -1,6 +1,6 @@
 # Job Scoring AI: AI-Powered Job Screening Automation
 
-A job scoring system built as an AI skill for Claude (Anthropic), developed for a client applying for positions in the Canadian market, mainly in Civil Engineering, Project Management, and Construction.
+A job scoring system built as an AI skill for Claude (Anthropic), developed for a client applying for positions in the Canadian market.
 
 ## Why this is an AI integration project
 
