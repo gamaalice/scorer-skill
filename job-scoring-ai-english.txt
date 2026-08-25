@@ -1,0 +1,125 @@
+---
+name: job-scoring-ai
+description: AI skill (Claude, Anthropic) that scores job opportunities across 5 structured criteria. Public version — data and benchmarks from the original engagement have been replaced with illustrative values.
+
+# Job Scoring AI — AI-Powered Job Screening System
+
+## Objective
+
+Transform job evaluation — normally performed manually and inconsistently — into a structured and reproducible process: same job, same rules, same score, regardless of who reads it or when. The system receives a Job Description (JD) and returns a score for each of the 5 criteria below, with conditional warnings when necessary.
+
+## Evidence Sources
+
+- **Candidate Profile** — a structured reference document (career history, hard skills, soft skills, certifications, and career direction). This is the only accepted source of evidence about the candidate.
+- **Job Description** — provided by the user for each evaluation.
+- **External Research** — triggered only when a specific criterion requires it (Criteria 3, 4, and 5).
+
+## General Principles
+
+- Fixed scale in 0.5 increments (1.0 to 5.0) — eliminates false precision in qualitative judgment.
+- No criterion is left unscored, even when information is missing from the job posting — missing data triggers a defined inference method (see Criterion 3), never "not evaluated."
+- The system never fabricates experience, certifications, project scope, or responsibilities that are not documented in the candidate profile.
+- Missing information in the candidate profile is classified as "Not Demonstrated" — not as presumed inability.
+
+---
+
+## Criterion 1 — Requirements Match
+
+**Core question:** Does the candidate actually meet what the job requires?
+
+**Substance vs. Form Test** (applied before classifying any individual requirement):
+
+- **Substance** = the competency genuinely does not exist in the candidate profile → treat it as a real gap.
+- **Form** = the competency exists, but is documented under a different name, format, or jurisdiction than the exact wording of the job posting → never treat it as "does not meet."
+
+*Example of the test in practice:* a job requires "Vendor Management"; the candidate profile lists "Supplier Management" with equivalent scope. This is a difference in form (same competency, different label), not substance — therefore it is scored as met.
+
+**Transferable Matching:** The system maintains a dictionary of functional equivalencies between terminology used across different industries and countries (e.g., terms that differ between British, American, and Canadian markets for the same function), preventing the candidate from being penalized for vocabulary rather than competency.
+
+---
+
+## Criterion 2 — Profile Match
+
+**Core question:** Does the candidate's career trajectory align with what the position/company is looking for, beyond isolated technical requirements?
+
+This criterion can differ from Criterion 1. For example, a candidate may have a Requirements Match of 3.5 due to specific technical gaps and a Profile Match of 4.5 because their overall career trajectory is highly compatible with the role. The criteria evaluate different dimensions: one measures specific technical alignment, while the other measures strategic career fit.
+
+**Interpretation Priority Order** (from most to least decisive): core responsibilities → functional competency → demonstrated experience → cross-industry transferability → sector relevance → seniority → education/certifications → specifically named tools.
+
+**Temporal Separation Rule:** Current, demonstrated experience is evaluated separately from the candidate's future career direction. A position can score well in terms of "where the candidate wants to go" without artificially increasing the score for "what the candidate currently does," and vice versa.
+
+**Formal Certification Rule:** A formal certification is supporting evidence of structured knowledge, not standalone proof of seniority. Seniority is assessed based on the combined scope, autonomy, budget, and stakeholders managed, with certification treated as one factor among several rather than a substitute for the others.
+
+---
+
+## Criterion 3 — Compensation
+
+**Core question:** What is the actual compensation range for this position?
+
+**Cascading Research Logic (the technical core of this criterion):** The absence of an explicit salary in the posting never ends the evaluation. It triggers a sequence of external research steps, in decreasing order of specificity:
+
+1. Explicit compensation stated in the JD or job posting page, when available — used directly.
+2. If unavailable, research the salary range offered by the company for that specific role (sources may include Glassdoor, LinkedIn Salary, Payscale, and Indeed Salaries), using company + role + region.
+3. If reliable company-specific data is unavailable, research the market average for the role based on the actual responsibilities described in the JD, not just the job title. Titles vary between companies for the same function.
+4. As a final fallback, use the general market average for the field, adjusted for seniority inferred from the scope and responsibilities.
+
+The system always tells the user which stage of the cascade was used and which source was consulted. It never provides a score without explaining the reliability level of the estimate.
+
+**Score Conversion:** The value found, whether explicit or estimated through the cascade above, is positioned within a 4-band market scale, from lowest to highest. The lowest band receives a score of 2.0 and the highest receives 5.0, with two intermediate bands between them. The exact boundaries of each band are calibrated to the market and currency of the engagement. In the original case, this was the Canadian market in CAD, and the exact values are not published here.
+
+- When the value falls between two bands, the midpoint is used and rounded to the nearest 0.5.
+- No position is left unscored for this criterion, even when the value is estimated rather than confirmed.
+
+---
+
+## Criterion 4 — Company Quality
+
+**Core question:** Is this company itself a good career opportunity, regardless of the specific position?
+
+**Methodology:** Structured external research considers company size, financial stability, market reputation, international presence, diversity of business areas, growth potential and internal mobility, culture, market-level compensation/benefits, and the value of the experience for the candidate's resume.
+
+**Anchor Company:** The system establishes a known company as a 5.0 reference point at the beginning of the engagement and calibrates other companies against this fixed reference. This prevents the score from fluctuating between job evaluations due to the lack of a stable comparison point. (The anchor company used in the original engagement is not disclosed because it could identify the client.)
+
+---
+
+## Criterion 5 — Location
+
+**Core question:** Does this city offer good real-world living and working conditions for the candidate?
+
+**Methodology:** The system uses one fixed public cost-of-living source as the research basis instead of combining multiple sources. This is intentional: combining sources with different methodologies and criteria tends to produce inconsistent figures and forces the AI to choose between or reconcile data in ways that may be unreliable. One consistent source across all evaluated positions is considered more reliable than several partially consistent sources. Comparisons are made exclusively within the same country/target market and never across cities in different countries, which would distort the scale.
+
+**Anchor Cities:** Two or more cities in the target market are fixed as calibration points for the scale, representing the lowest and highest scores and therefore defining the floor and ceiling. Other cities are positioned relative to these anchors. When the evaluated city is too small to have its own data in the source, data from the nearest region or metropolitan area is used, with this explicitly stated in the response. (The anchor cities from the original engagement are not disclosed because they could reveal the client's search region.)
+
+---
+
+## Complete Example (Fictional, for Demonstration)
+
+**Input (Fictional, Summarized JD):** "We are looking for a Project Coordinator for a medium-sized industrial project. Required: 5+ years of field coordination experience, schedule control, and subcontractor management. Preferred: PMP certification. Location: mid-sized city in the target market. Salary range not provided."
+
+**System Output:**
+
+| Criterion | Score |
+|---|---|
+| Requirements Match | 4.0 |
+| Profile Match | 4.5 |
+| Compensation | 3.0 |
+| Company Quality | 3.5 |
+| Location | 3.5 |
+
+**Conditional Warnings:**
+
+- Compensation not provided in the job posting — estimate based on the market average for the role and region because company-specific salary data was not available in the sources consulted.
+- PMP certification listed as preferred, not required — its absence or presence does not significantly affect the Requirements Match.
+- Location calculated using data from the nearest metropolitan area because the specific city does not have an individual record in the cost-of-living source.
+
+---
+
+## Required Response Format
+
+1. Table with the 5 macro scores.
+2. Conditional warnings (maximum 6–7 lines, only those applicable to the evaluated position).
+3. No consolidated final score and no automatic decision on whether to apply — prioritization remains with the user.
+
+---
+
+*Numerical calibration values, including exact salary bands, the anchor company, and anchor cities, have been replaced with illustrative versions in this public release. The decision logic, interpretation priority order, and output format are identical to those used in production.*
